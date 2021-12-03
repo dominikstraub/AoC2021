@@ -19,24 +19,24 @@ let commands = input
     }
     .compactMap { $0 }
 
-// func part1() -> Int {
-//     var x = 0
-//     var y = 0
-//     for command in commands {
-//         switch command.0 {
-//         case "forward":
-//             y += command.1
-//         case "up":
-//             x -= command.1
-//         case "down":
-//             x += command.1
-//         default: break
-//         }
-//     }
-//     return x * y
-// }
+func part1() -> Int {
+    var x = 0
+    var y = 0
+    for command in commands {
+        switch command.0 {
+        case "forward":
+            y += command.1
+        case "up":
+            x -= command.1
+        case "down":
+            x += command.1
+        default: break
+        }
+    }
+    return x * y
+}
 
-// print("Part 1: \(part1())")
+print("Part 1: \(part1())")
 
 func part2() -> Int {
     var x = 0
