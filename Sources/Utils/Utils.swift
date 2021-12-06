@@ -46,6 +46,10 @@ public func ^^ (radix: Int, power: Int) -> Double {
     return pow(Double(radix), Double(power))
 }
 
+public func ^^ (radix: Double, power: Double) -> Double {
+    return pow(radix, power)
+}
+
 public enum DefaultError: Error {
     case message(String)
 }
