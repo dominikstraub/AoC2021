@@ -13,6 +13,15 @@ public extension StringProtocol {
     subscript(_ range: PartialRangeThrough<Int>) -> SubSequence { prefix(range.upperBound.advanced(by: 1)) }
     subscript(_ range: PartialRangeUpTo<Int>) -> SubSequence { prefix(range.upperBound) }
     subscript(_ range: PartialRangeFrom<Int>) -> SubSequence { suffix(Swift.max(0, count - range.lowerBound)) }
+
+    func contains(_ elements: Set<Character>) -> Bool {
+        for element in elements {
+            if !contains(element) {
+                return false
+            }
+        }
+        return true
+    }
 }
 
 public extension LosslessStringConvertible {
