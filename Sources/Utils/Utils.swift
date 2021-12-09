@@ -66,3 +66,11 @@ public enum DefaultError: Error {
 public func print(string: String) {
     Swift.print(string)
 }
+
+public extension Sequence where Element: AdditiveArithmetic {
+    func sum() -> Element { reduce(.zero, +) }
+}
+
+public extension Sequence where Element: Numeric {
+    func product() -> Element { reduce(1, *) }
+}
