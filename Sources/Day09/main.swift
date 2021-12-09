@@ -1,8 +1,8 @@
 import Foundation
 import Utils
 
-let input = try Utils.getInput(bundle: Bundle.module, file: "test")
-// let input = try Utils.getInput(bundle: Bundle.module)
+// let input = try Utils.getInput(bundle: Bundle.module, file: "test")
+let input = try Utils.getInput(bundle: Bundle.module)
 
 let field = input
     .components(separatedBy: CharacterSet(charactersIn: "\n"))
@@ -18,65 +18,94 @@ let field = input
         }
     }
 
-// func part1() -> Int {
-//     var risk = 0
-//     for (y, line) in field.enumerated() {
-//         for (x, point) in line.enumerated() {
-//             if x > 0, line[x - 1] <= point {
-//                 continue
-//             }
-//             if x < line.count - 1, line[x + 1] <= point {
-//                 continue
-//             }
-//             if y > 0, field[y - 1][x] <= point {
-//                 continue
-//             }
-//             if y < field.count - 1, field[y + 1][x] <= point {
-//                 continue
-//             }
-//             risk += point + 1
-//         }
-//     }
-//     return risk
-// }
+func part1() -> Int {
+    var risk = 0
+    for (y, line) in field.enumerated() {
+        for (x, point) in line.enumerated() {
+            if x > 0, line[x - 1] <= point {
+                continue
+            }
+            if x < line.count - 1, line[x + 1] <= point {
+                continue
+            }
+            if y > 0, field[y - 1][x] <= point {
+                continue
+            }
+            if y < field.count - 1, field[y + 1][x] <= point {
+                continue
+            }
+            risk += point + 1
+        }
+    }
+    return risk
+}
 
-// print("Part 1: \(part1())")
+print("Part 1: \(part1())")
 
 func measureBasin(x: Int, y: Int, countedField: inout [Int: [Int: Bool]], field: [[Int]]) -> Int {
     var size = 1
+    if countedField[y] == nil {
+        countedField[y] = [Int: Bool]()
+    }
+    countedField[y]![x] = true
     var x2 = x - 1
     while x2 >= 0, field[y][x2] != 9 {
-        if countedField[y]![x2] == nil {
+        if countedField[y]?[x2] == nil {
+            if countedField[y] == nil {
+                countedField[y] = [Int: Bool]()
+            }
             countedField[y]![x2] = true
             size += measureBasin(x: x2, y: y, countedField: &countedField, field: field)
-            x2 -= 1
         }
+        x2 -= 1
     }
     x2 = x + 1
-    while x2 < field[y].count - 1, field[y][x2] != 9 {
-        if countedField[y]![x2] == nil {
+    while x2 < field[y].count, field[y][x2] != 9 {
+        if countedField[y]?[x2] == nil {
+            if countedField[y] == nil {
+                countedField[y] = [Int: Bool]()
+            }
             countedField[y]![x2] = true
             size += measureBasin(x: x2, y: y, countedField: &countedField, field: field)
-            x2 += 1
         }
+        x2 += 1
     }
     var y2 = y - 1
     while y2 >= 0, field[y2][x] != 9 {
-        if countedField[y2]![x] == nil {
+        if countedField[y2]?[x] == nil {
+            if countedField[y2] == nil {
+                countedField[y2] = [Int: Bool]()
+            }
             countedField[y2]![x] = true
-            size += measureBasin(x: x2, y: y, countedField: &countedField, field: field)
-            y2 -= 1
+            size += measureBasin(x: x, y: y2, countedField: &countedField, field: field)
         }
+        y2 -= 1
     }
     y2 = y + 1
-    while y2 < field.count - 1, field[y2][x] != 9 {
-        if countedField[y2]![x] == nil {
+    while y2 < field.count, field[y2][x] != 9 {
+        if countedField[y2]?[x] == nil {
+            if countedField[y2] == nil {
+                countedField[y2] = [Int: Bool]()
+            }
             countedField[y2]![x] = true
-            size += measureBasin(x: x2, y: y, countedField: &countedField, field: field)
-            y2 += 1
+            size += measureBasin(x: x, y: y2, countedField: &countedField, field: field)
         }
+        y2 += 1
     }
     return size
+}
+
+func printBasin(countedField: [Int: [Int: Bool]], field: [[Int]]) {
+    for (y, _) in field.enumerated() {
+        for (x, _) in field[y].enumerated() {
+            if countedField[y]?[x] == true {
+                print(field[y][x], terminator: "")
+            } else {
+                print(".", terminator: "")
+            }
+        }
+        print()
+    }
 }
 
 func part2() -> Int {
@@ -97,10 +126,12 @@ func part2() -> Int {
             }
             var countedField = [Int: [Int: Bool]]()
             let size = measureBasin(x: x, y: y, countedField: &countedField, field: field)
+            // printBasin(countedField: countedField, field: field)
             basins.append(size)
         }
     }
 
+    basins = basins.sorted().reversed()
     return basins[0 ... 2].product()
 }
 
