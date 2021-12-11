@@ -2,8 +2,8 @@ import Foundation
 import Utils
 
 if #available(macOS 12, *) {
-    let input = try Utils.getInput(bundle: Bundle.module, file: "test")
-    // let input = try Utils.getInput(bundle: Bundle.module)
+    // let input = try Utils.getInput(bundle: Bundle.module, file: "test")
+    let input = try Utils.getInput(bundle: Bundle.module)
 
     let lines = input
         .components(separatedBy: "\n")
@@ -163,7 +163,7 @@ if #available(macOS 12, *) {
 
             var decodingTable = [Character: Character]()
             for (segment, segmentPossibilities) in possibilities {
-                decodingTable[segmentPossibilities.first!] = segment
+                decodingTable[segment] = segmentPossibilities.first!
             }
 
             for (i, value) in line[0].enumerated() {
@@ -236,9 +236,8 @@ if #available(macOS 12, *) {
                 print(val)
                 localScore += val * 10 ^^ (line[1].count - i - 1)
             }
-            print("\(localScore), \(solution[i]), \(localScore == solution[i])")
+            // print("\(localScore), \(solution[i]), \(localScore == solution[i])")
             score += localScore
-            return score
         }
         return score
     }
