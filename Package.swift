@@ -98,11 +98,6 @@ let package = Package(
                 .process("input.txt"),
                 .process("test.txt"),
                 .process("test2.txt"),
-                .process("test3.txt"),
-                .process("test4.txt"),
-                .process("test5.txt"),
-                .process("test6.txt"),
-                .process("test7.txt"),
             ]
         ),
     ]
