@@ -22,6 +22,25 @@ public extension StringProtocol {
         }
         return true
     }
+
+    func hexToBin() -> String {
+        return compactMap { $0.hexToBin() }.joined(separator: "")
+    }
+
+    func binToDec() -> Int? {
+        return Int(self, radix: 2)
+    }
+}
+
+public extension Character {
+    func hexToDec() -> Int? {
+        return Int(string, radix: 16)
+    }
+
+    func hexToBin() -> String? {
+        guard let dec = hexToDec() else { return nil }
+        return String(String(dec, radix: 2).paddingToLeft(upTo: 4, using: "0"))
+    }
 }
 
 public extension LosslessStringConvertible {
@@ -73,4 +92,10 @@ public extension Sequence where Element: AdditiveArithmetic {
 
 public extension Sequence where Element: Numeric {
     func product() -> Element { reduce(1, *) }
+}
+
+public extension RangeReplaceableCollection where Self: StringProtocol {
+    func paddingToLeft(upTo length: Int, using element: Element = " ") -> SubSequence {
+        return repeatElement(element, count: Swift.max(0, length - count)) + suffix(Swift.max(count, count - length))
+    }
 }
