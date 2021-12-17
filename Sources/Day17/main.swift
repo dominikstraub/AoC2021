@@ -18,21 +18,17 @@ let xMax = Int(parts[4])!
 let yMin = Int(parts[6])!
 let yMax = Int(parts[7])!
 
-func part1() -> Int {
-    print(xMin)
-    print(xMax)
-    print(yMin)
-    print(yMax)
+func simulateShots() -> (highestY: Int, reachedtargetCount: Int) {
     var highestY: Int?
+    var reachedtargetCount = 0
 
-    for startVelocityX in 0 ... 150 {
-        for startVelocityY in -150 ... 150 {
+    for startVelocityX in 0 ... 300 {
+        for startVelocityY in -300 ... 300 {
             // print("startVelocityX: \(startVelocityX), startVelocityY: \(startVelocityY)")
             var x = 0
             var y = 0
             var velocityX = startVelocityX
             var velocityY = startVelocityY
-            var targetReached = false
             var currentHighestY = y
             var step = 1
             while x <= xMax, y >= yMin {
@@ -41,7 +37,12 @@ func part1() -> Int {
                     currentHighestY = y
                 }
                 if x >= xMin, x <= xMax, y >= yMin, y <= yMax {
-                    targetReached = true
+                    // print("startVelocityX: \(startVelocityX), startVelocityY: \(startVelocityY)")
+                    if highestY == nil || highestY! < currentHighestY {
+                        // print("startVelocityX: \(startVelocityX), startVelocityY: \(startVelocityY)")
+                        highestY = currentHighestY
+                    }
+                    reachedtargetCount += 1
                     break
                 }
                 x += velocityX
@@ -52,19 +53,21 @@ func part1() -> Int {
                 velocityY -= 1
                 step += 1
             }
-            if targetReached == true, highestY == nil || highestY! < currentHighestY {
-                // print("startVelocityX: \(startVelocityX), startVelocityY: \(startVelocityY)")
-                highestY = currentHighestY
-            }
         }
     }
-    return highestY!
+    return (highestY: highestY!, reachedtargetCount: reachedtargetCount)
+}
+
+let results = simulateShots()
+
+func part1() -> Int {
+    return results.highestY
 }
 
 print("Part 1: \(part1())")
 
-// func part2() -> Int {
-//     return -1
-// }
+func part2() -> Int {
+    return results.reachedtargetCount
+}
 
-// print("Part 2: \(part2())")
+print("Part 2: \(part2())")
