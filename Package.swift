@@ -100,8 +100,13 @@ let package = Package(
         //         .process("test2.txt"),
         //     ]
         // ),
+        // .executableTarget(
+        //     name: "Day17",
+        //     dependencies: ["Utils"],
+        //     resources: [.process("input.txt"), .process("test.txt")]
+        // ),
         .executableTarget(
-            name: "Day17",
+            name: "Day18",
             dependencies: ["Utils"],
             resources: [.process("input.txt"), .process("test.txt")]
         ),

@@ -30,6 +30,10 @@ public extension StringProtocol {
     func binToDec() -> Int? {
         return Int(self, radix: 2)
     }
+
+    var isNumber: Bool {
+        return !isEmpty && rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) == nil
+    }
 }
 
 public extension Character {
