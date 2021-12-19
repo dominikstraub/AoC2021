@@ -1,16 +1,31 @@
 import Foundation
 import Utils
 
-class SnailUnit: CustomStringConvertible {
+class SnailUnit: CustomStringConvertible, NSCopying {
     var regularNumber: Int?
     var snailNumber: SnailNumber?
     var parent: SnailNumber?
 
-    init(regularNumber: Int) {
+    func copy(with _: NSZone? = nil) -> Any {
+        let result: SnailUnit = copy()
+        return result
+    }
+
+    func copy(with _: NSZone? = nil) -> SnailUnit {
+        return SnailUnit(regularNumber: regularNumber, snailNumber: snailNumber?.copy())
+    }
+
+    init(regularNumber: Int?) {
         self.regularNumber = regularNumber
     }
 
-    init(snailNumber: SnailNumber) {
+    init(snailNumber: SnailNumber?) {
+        self.snailNumber = snailNumber
+        self.snailNumber?.parent = self
+    }
+
+    init(regularNumber: Int?, snailNumber: SnailNumber?) {
+        self.regularNumber = regularNumber
         self.snailNumber = snailNumber
         self.snailNumber?.parent = self
     }
@@ -82,19 +97,28 @@ extension SnailUnit: Equatable {
     }
 }
 
-class SnailNumber: CustomStringConvertible {
+class SnailNumber: CustomStringConvertible, NSCopying {
+    func copy(with _: NSZone? = nil) -> Any {
+        let result: SnailNumber = copy()
+        return result
+    }
+
+    func copy(with _: NSZone? = nil) -> SnailNumber {
+        return SnailNumber(x: x?.copy(), y: y?.copy())
+    }
+
     var x: SnailUnit?
     var y: SnailUnit?
     var parent: SnailUnit?
 
-    init(x: SnailNumber, y: SnailNumber) {
+    init(x: SnailNumber?, y: SnailNumber?) {
         self.x = SnailUnit(snailNumber: x)
         self.x?.parent = self
         self.y = SnailUnit(snailNumber: y)
         self.y?.parent = self
     }
 
-    init(x: SnailUnit, y: SnailUnit) {
+    init(x: SnailUnit?, y: SnailUnit?) {
         self.x = x
         self.x?.parent = self
         self.y = y
@@ -263,10 +287,10 @@ let lines = input
 
 func part1() -> Int {
     var lines = lines
-    var sum = lines.first!
+    var sum: SnailNumber = lines.first!.copy()
     lines.remove(at: 0)
     for line in lines {
-        sum = sum + line
+        sum = sum + line.copy()
     }
     return sum.magnitude
     // return lines.sum().magnitude
@@ -274,8 +298,25 @@ func part1() -> Int {
 
 print("Part 1: \(part1())")
 
-// func part2() -> Int {
-//     return -1
-// }
+func part2() -> Int {
+    var highestMagnitude = 0
+    for line in lines {
+        for line2 in lines {
+            if line.copy() !== line2.copy() {
+                var sum = line.copy() + line2.copy()
+                var magnitude = sum.magnitude
+                if magnitude > highestMagnitude {
+                    highestMagnitude = magnitude
+                }
+                sum = line2.copy() + line.copy()
+                magnitude = sum.magnitude
+                if magnitude > highestMagnitude {
+                    highestMagnitude = magnitude
+                }
+            }
+        }
+    }
+    return highestMagnitude
+}
 
-// print("Part 2: \(part2())")
+print("Part 2: \(part2())")
