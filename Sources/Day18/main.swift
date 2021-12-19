@@ -1,8 +1,6 @@
 import Foundation
 import Utils
 
-// WIP: will continue after some sleep
-
 class SnailUnit: CustomStringConvertible {
     var regularNumber: Int?
     var snailNumber: SnailNumber?
@@ -36,6 +34,18 @@ class SnailUnit: CustomStringConvertible {
 
     public func nestedNumber(level: Int) -> SnailNumber? {
         return snailNumber?.nestedNumber(level: level - 1)
+    }
+
+    public var bigUnit: SnailUnit? {
+        if let regularNumber = regularNumber {
+            if regularNumber >= 10 {
+                return self
+            } else {
+                return nil
+            }
+        } else {
+            return snailNumber?.bigUnit
+        }
     }
 
     public var splitted: SnailUnit {
@@ -133,26 +143,83 @@ class SnailNumber: CustomStringConvertible {
     public func explode() {
         let nestedNumber = self.nestedNumber(level: 4)
 
-        // let parentNumber = nestedNumber.parent.parent
-        // if parentNumber.x == nestedNumber {}
+        var currentNumber = nestedNumber
+        var nextNumber = nestedNumber?.parent?.parent
+        while nextNumber != nil {
+            if nextNumber?.x?.snailNumber === currentNumber {
+                currentNumber = nextNumber
+                nextNumber = nextNumber?.parent?.parent
+            } else if nextNumber?.y?.snailNumber === currentNumber {
+                currentNumber = nextNumber
+                nextNumber = nextNumber?.x?.snailNumber
+                if let regularNumber = currentNumber?.x?.regularNumber {
+                    currentNumber?.x?.regularNumber = regularNumber + (nestedNumber?.x?.regularNumber ?? 0)
+                    break
+                }
+            } else {
+                currentNumber = nextNumber
+                nextNumber = nextNumber?.y?.snailNumber
+                if let regularNumber = currentNumber?.y?.regularNumber {
+                    currentNumber?.y?.regularNumber = regularNumber + (nestedNumber?.x?.regularNumber ?? 0)
+                    break
+                }
+            }
+        }
+
+        currentNumber = nestedNumber
+        nextNumber = nestedNumber?.parent?.parent
+        while nextNumber != nil {
+            if nextNumber?.y?.snailNumber === currentNumber {
+                currentNumber = nextNumber
+                nextNumber = nextNumber?.parent?.parent
+            } else if nextNumber?.x?.snailNumber === currentNumber {
+                currentNumber = nextNumber
+                nextNumber = nextNumber?.y?.snailNumber
+                if let regularNumber = currentNumber?.y?.regularNumber {
+                    currentNumber?.y?.regularNumber = regularNumber + (nestedNumber?.y?.regularNumber ?? 0)
+                    break
+                }
+            } else {
+                currentNumber = nextNumber
+                nextNumber = nextNumber?.x?.snailNumber
+                if let regularNumber = currentNumber?.x?.regularNumber {
+                    currentNumber?.x?.regularNumber = regularNumber + (nestedNumber?.y?.regularNumber ?? 0)
+                    break
+                }
+            }
+        }
+
+        nestedNumber?.parent?.regularNumber = 0
+        nestedNumber?.parent?.snailNumber = nil
+    }
+
+    public var bigUnit: SnailUnit? {
+        x?.bigUnit ?? y?.bigUnit
     }
 
     public var magnitude: Int {
         return 3 * x!.magnitude + 2 * y!.magnitude
     }
 
-    public var reduced: SnailNumber {
+    public func reduce() -> SnailNumber {
         while true {
             if nestedNumberCount >= 4 {
                 explode()
                 continue
             }
-            if split {
-                xy = xy.splitted
+            if let bigUnit = bigUnit {
+                let splitted = bigUnit.splitted
+                splitted.parent = bigUnit.parent
+                if bigUnit.parent?.x === bigUnit {
+                    bigUnit.parent?.x = splitted
+                } else if bigUnit.parent?.y === bigUnit {
+                    bigUnit.parent?.y = splitted
+                }
                 continue
             }
-            return
+            break
         }
+        return self
     }
 
     public var description: String {
@@ -167,22 +234,23 @@ class SnailNumber: CustomStringConvertible {
 infix operator +: AdditionPrecedence
 extension SnailNumber {
     static func + (lhs: SnailNumber, rhs: SnailNumber) -> SnailNumber {
-        return SnailNumber(x: lhs, y: rhs).reduced
+        return SnailNumber(x: lhs, y: rhs).reduce()
     }
 }
 
-extension SnailNumber: AdditiveArithmetic {
-    static var zero: SnailNumber {
-        <#code#>
-    }
+extension SnailNumber: Equatable {
+    // extension SnailNumber: AdditiveArithmetic {
+    // static var zero: SnailNumber {
+    //     <#code#>
+    // }
 
     static func == (lhs: SnailNumber, rhs: SnailNumber) -> Bool {
         lhs.x == rhs.x && lhs.y == rhs.y
     }
 }
 
-let input = try Utils.getInput(bundle: Bundle.module, file: "test")
-// let input = try Utils.getInput(bundle: Bundle.module)
+// let input = try Utils.getInput(bundle: Bundle.module, file: "test")
+let input = try Utils.getInput(bundle: Bundle.module)
 
 let lines = input
     .components(separatedBy: CharacterSet(charactersIn: "\n"))
@@ -194,7 +262,14 @@ let lines = input
     }
 
 func part1() -> Int {
-    return lines.sum().magnitude
+    var lines = lines
+    var sum = lines.first!
+    lines.remove(at: 0)
+    for line in lines {
+        sum = sum + line
+    }
+    return sum.magnitude
+    // return lines.sum().magnitude
 }
 
 print("Part 1: \(part1())")
