@@ -53,7 +53,10 @@ public extension LosslessStringConvertible {
 
 public extension BidirectionalCollection {
     subscript(safe offset: Int) -> Element? {
-        guard !isEmpty, let i = index(startIndex, offsetBy: offset, limitedBy: index(before: endIndex)) else { return nil }
+        guard !isEmpty,
+              offset >= 0,
+              let i = index(startIndex, offsetBy: offset, limitedBy: index(before: endIndex))
+        else { return nil }
         return self[i]
     }
 }
@@ -101,5 +104,16 @@ public extension Sequence where Element: Numeric {
 public extension RangeReplaceableCollection where Self: StringProtocol {
     func paddingToLeft(upTo length: Int, using element: Element = " ") -> SubSequence {
         return repeatElement(element, count: Swift.max(0, length - count)) + suffix(Swift.max(count, count - length))
+    }
+}
+
+public extension Array {
+    subscript(safe range: Range<Index>) -> ArraySlice<Element>? {
+        if range.endIndex > endIndex {
+            if range.startIndex >= endIndex { return nil }
+            else { return self[range.startIndex ..< endIndex] }
+        } else {
+            return self[range]
+        }
     }
 }
