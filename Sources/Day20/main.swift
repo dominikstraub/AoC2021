@@ -46,7 +46,7 @@ func countPixels(image: [[Bool]]) -> Int {
     return count
 }
 
-func enhance(image: [[Bool]], infinitePixel: Bool = false) -> [[Bool]]? {
+func enhance(image: [[Bool]], infinitePixel: Bool = false) -> ([[Bool]], Bool) {
     var outputImage = [[Bool]]()
     for y in -2 ... image.count + 2 {
         outputImage.append([Bool]())
@@ -70,10 +70,11 @@ func enhance(image: [[Bool]], infinitePixel: Bool = false) -> [[Bool]]? {
             outputImage[y + 2].append(outputPixel)
         }
     }
-    return outputImage
+    let infinitePixel = algorithm[String(repeating: infinitePixel == true ? "1" : "0", count: 9).binToDec()!]
+    return (outputImage, infinitePixel)
 }
 
-func print(image: [[Bool]]) {
+func print(image: [[Bool]], terminator: String = "\n") {
     for row in image {
         for pixel in row {
             if pixel == true {
@@ -84,29 +85,35 @@ func print(image: [[Bool]]) {
         }
         print()
     }
+    print("", terminator)
+}
+
+func enhance(image: [[Bool]], times: Int) -> [[Bool]] {
+    var (image, infinitePixel) = (image, false)
+
+    for _ in 1 ... times {
+        (image, infinitePixel) = enhance(image: image, infinitePixel: infinitePixel)
+    }
+
+    return image
 }
 
 func part1() -> Int {
-    print(algorithm)
-    print(image)
-    print()
-
     print(image: image)
-    print()
-    let once = enhance(image: image)!
-    print(image: once)
-    print()
-    let twice = enhance(image: once, infinitePixel: algorithm[0])!
-    print(image: twice)
-    print()
+    let image = enhance(image: image, times: 2)
+    print(image: image)
 
-    return countPixels(image: twice)
+    return countPixels(image: image)
 }
 
 print("Part 1: \(part1())")
 
-// func part2() -> Int {
-//     return -1
-// }
+func part2() -> Int {
+    print(image: image)
+    let image = enhance(image: image, times: 50)
+    print(image: image)
 
-// print("Part 2: \(part2())")
+    return countPixels(image: image)
+}
+
+print("Part 2: \(part2())")
