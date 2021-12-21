@@ -46,21 +46,21 @@ func countPixels(image: [[Bool]]) -> Int {
     return count
 }
 
-func enhance(image: [[Bool]]) -> [[Bool]]? {
+func enhance(image: [[Bool]], infinitePixel: Bool = false) -> [[Bool]]? {
     var outputImage = [[Bool]]()
     for y in -2 ... image.count + 2 {
         outputImage.append([Bool]())
         for x in -2 ... image[0].count + 2 {
             let filter = [
-                image[safe: y - 1]?[safe: x - 1],
-                image[safe: y - 1]?[safe: x],
-                image[safe: y - 1]?[safe: x + 1],
-                image[safe: y]?[safe: x - 1],
-                image[safe: y]?[safe: x],
-                image[safe: y]?[safe: x + 1],
-                image[safe: y + 1]?[safe: x - 1],
-                image[safe: y + 1]?[safe: x],
-                image[safe: y + 1]?[safe: x + 1],
+                image[safe: y - 1]?[safe: x - 1] ?? infinitePixel,
+                image[safe: y - 1]?[safe: x] ?? infinitePixel,
+                image[safe: y - 1]?[safe: x + 1] ?? infinitePixel,
+                image[safe: y]?[safe: x - 1] ?? infinitePixel,
+                image[safe: y]?[safe: x] ?? infinitePixel,
+                image[safe: y]?[safe: x + 1] ?? infinitePixel,
+                image[safe: y + 1]?[safe: x - 1] ?? infinitePixel,
+                image[safe: y + 1]?[safe: x] ?? infinitePixel,
+                image[safe: y + 1]?[safe: x + 1] ?? infinitePixel,
             ]
             let number = filter
                 .compactMap { $0 == true ? "1" : "0" }
@@ -96,7 +96,7 @@ func part1() -> Int {
     let once = enhance(image: image)!
     print(image: once)
     print()
-    let twice = enhance(image: once)!
+    let twice = enhance(image: once, infinitePixel: algorithm[0])!
     print(image: twice)
     print()
 
