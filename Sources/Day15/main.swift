@@ -17,6 +17,17 @@ extension GridPoint: Hashable {
     }
 }
 
+extension GridPoint: CustomStringConvertible {
+    public var description: String {
+        "x: \(x), y: \(y)"
+    }
+
+    public var string: String {
+        description
+    }
+}
+
+// let input = try Utils.getInput(bundle: Bundle.module, file: "test2")
 // let input = try Utils.getInput(bundle: Bundle.module, file: "test")
 let input = try Utils.getInput(bundle: Bundle.module)
 
@@ -38,13 +49,14 @@ var pathLengths = [GridPoint: Int]()
 var pathTaken = [GridPoint: [GridPoint]]()
 let size = lines.count
 func findShortestPath(x: Int, y: Int, currentPath: Set<GridPoint> = [], backwardsCounter: Int = 0, tileCount: Int = 1) -> (risk: Int, path: [GridPoint])? {
+//    print("x: \(x), y: \(y)")
     if y < 0 || x < 0 || y >= size * tileCount || x >= size * tileCount {
         return nil
     }
     let currentGridPoint = GridPoint(x: x, y: y)
-    if let result = pathLengths[currentGridPoint] {
-        return (risk: result, path: pathTaken[currentGridPoint]!)
-    }
+    // if let result = pathLengths[currentGridPoint] {
+    //     return (risk: result, path: pathTaken[currentGridPoint]!)
+    // }
     let risk = ((lines[y % size][x % size] + y / size + x / size) - 1) % 9 + 1
     if y == size * tileCount - 1, x == size * tileCount - 1 {
         return (risk: risk, path: [currentGridPoint])
@@ -56,11 +68,11 @@ func findShortestPath(x: Int, y: Int, currentPath: Set<GridPoint> = [], backward
     var currentPath = currentPath
     currentPath.insert(currentGridPoint)
 
-    let rigthResult = findShortestPath(x: x + 1, y: y, currentPath: currentPath, backwardsCounter: backwardsCounter, tileCount: tileCount)
-    let bottomResult = findShortestPath(x: x, y: y + 1, currentPath: currentPath, backwardsCounter: backwardsCounter, tileCount: tileCount)
+    let rigthResult = findShortestPath(x: x + 1, y: y, currentPath: currentPath, backwardsCounter: max(0, backwardsCounter - 1), tileCount: tileCount)
+    let bottomResult = findShortestPath(x: x, y: y + 1, currentPath: currentPath, backwardsCounter: max(0, backwardsCounter - 1), tileCount: tileCount)
     var leftResult: (risk: Int, path: [GridPoint])?
     var topResult: (risk: Int, path: [GridPoint])?
-    if backwardsCounter < 10 {
+    if backwardsCounter < 0 {
         leftResult = findShortestPath(x: x - 1, y: y, currentPath: currentPath, backwardsCounter: backwardsCounter + 1, tileCount: tileCount)
         topResult = findShortestPath(x: x, y: y - 1, currentPath: currentPath, backwardsCounter: backwardsCounter + 1, tileCount: tileCount)
     }
@@ -71,8 +83,13 @@ func findShortestPath(x: Int, y: Int, currentPath: Set<GridPoint> = [], backward
     let totalRisk = risk + min
     var path = [currentGridPoint]
     path.append(contentsOf: results.filter { $0.risk == min }.first!.path)
+    if let length = pathLengths[currentGridPoint], length < totalRisk {
+        printLengths(pathLengths: pathLengths)
+    }
     pathLengths[currentGridPoint] = totalRisk
+    // printLengths(pathLengths: pathLengths)
     pathTaken[currentGridPoint] = path
+
     return (risk: totalRisk, path: path)
 }
 
@@ -111,6 +128,20 @@ func printField(field: [[Int]]) {
             print(cell, terminator: "")
         }
         print()
+    }
+}
+
+func printLengths(pathLengths: [GridPoint: Int]) {
+    print("")
+    for y in 0 ..< size {
+        for x in 0 ..< size {
+            if let length = pathLengths[GridPoint(x: x, y: y)] {
+                print(length.string.paddingToLeft(upTo: 3, using: " "), terminator: "")
+            } else {
+                print("   ", terminator: "")
+            }
+        }
+        print("")
     }
 }
 
